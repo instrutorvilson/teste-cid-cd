@@ -2,4 +2,16 @@ language: java
 jdk:
   - openjdk17
 before_install:
-  - chmod +x mvnw 
+  - chmod +x mvnw
+  - ./mvnw clean package
+script:
+  - docker build -t testecicd:v1 .
+before_deploy:
+  echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USER" --password-stdin
+deploy:
+  provider: script
+  script:
+    docker tag testecicd:v1 $DOCKERHUB_USER/testecicd:v1;
+    docker push $DOCKERHUB_USER/testecicd:v1;
+  on:
+    branch: main
